@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: workflow_engine
+      POSTGRES_USER: workflow_user
+      POSTGRES_PASSWORD: workflow_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflow_user"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DATABASE_URL: postgresql://workflow_user:workflow_pass@postgres:5432/workflow_engine
+      JWT_SECRET: your-secret-key-change-this
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:3001
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  python-executor:
+    build: ./python-executor
+    environment:
+      REDIS_HOST: redis
+      DATABASE_URL: postgresql://workflow_user:workflow_pass@postgres:5432/workflow_engine
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./python-executor:/app
+
+volumes:
+  redis_data:
+  postgres_data:
