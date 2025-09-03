@@ -1,257 +1,348 @@
-# Production-Grade Workflow Engine
+# 🚀 Production-Grade Workflow Engine
 
-A high-performance, distributed workflow automation engine built with Node.js, React, and Python. Similar to n8n but optimized for production scale.
+[![CI/CD Pipeline](https://github.com/yourusername/workflow-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/workflow-engine/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://www.docker.com/)
 
-## 🚀 Features
+A **high-performance, distributed workflow automation engine** built with **Node.js**, **React**, and **Python**. Designed for **enterprise-grade scalability**, **production resilience**, and **developer productivity**.  
 
-- **5 Core Node Types**: HTTP, Database, Python, Conditional, Transformer
-- **Visual Workflow Editor**: Drag-and-drop interface with React Flow
-- **Distributed Execution**: Redis-backed queue system with Bull
-- **Real-time Updates**: WebSocket connections for live execution monitoring
-- **Production Ready**: Docker support, proper error handling, monitoring
-- **M1 Mac Optimized**: Native performance on Apple Silicon
+---
 
-## 📋 Prerequisites
+## 🌟 Key Features
 
-- Node.js 20+
-- Python 3.11+
-- Redis 7+
-- PostgreSQL 15+
-- Docker & Docker Compose (optional)
+- 🎨 **Visual Workflow Editor** – Intuitive drag-and-drop UI with React Flow  
+- 🔗 **Core Node Types** – HTTP, Database, Python, Conditional, Transformer  
+- ⚡ **Distributed Execution** – Redis + Bull-powered worker queues  
+- 📡 **Live Monitoring** – Real-time execution tracking via WebSockets  
+- 🐳 **Production Ready** – Dockerized, cloud-native, CI/CD pipeline ready  
+- 🔒 **Security First** – JWT auth, rate limiting, sanitization, headers  
+- 📈 **Horizontal Scaling** – Redis-backed scaling for high throughput  
+- 🍏 **Apple Silicon Optimized** – Native performance on M1/M2  
 
-## 🛠️ Installation
+---
 
-### Quick Start (Docker)
+## 📊 Architecture Overview
+
+```mermaid
+graph TB
+   A[React Frontend] -->|REST API| B[Node.js Backend]
+   A -->|WebSocket| B
+   B --> C[Redis Queue]
+   B --> D[PostgreSQL]
+   C --> E[Worker Processes]
+   E --> F[Python Executor]
+   B --> G[Monitoring & Metrics]
+````
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/workflow-engine.git
+git clone https://github.com/yourusername/workflow-engine.git
 cd workflow-engine
-docker-compose up
+
+docker-compose up -d
+open http://localhost:3000
 ```
 
-Open http://localhost:3000
+### Option 2: Manual Setup
 
-### Manual Installation
-
-1. **Install System Dependencies**
 ```bash
-# macOS (M1)
+# Prerequisites
 brew install node@20 python@3.11 redis postgresql
-brew services start redis postgresql
 
-# Ubuntu/Debian
-sudo apt update
-sudo apt install nodejs npm python3 python3-venv redis postgresql
-```
-
-2. **Setup Database**
-```bash
-createdb workflow_engine
-psql workflow_engine < database/init.sql
-```
-
-3. **Install Backend**
-```bash
+# Backend setup
 cd backend
 npm install
-cp ../.env.example .env
-# Edit .env with your settings
+cp .env.example .env
+npm run migrate
 npm run dev
-```
 
-4. **Install Frontend**
-```bash
+# Frontend setup (new terminal)
 cd frontend
 npm install
 npm run dev
+
+# Redis
+redis-server
+
+# Open App
+open http://localhost:5173
 ```
 
-5. **Setup Python Executor**
+---
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+workflow-engine/
+├── backend/
+│   ├── src/
+│   │   ├── api/          # REST API routes
+│   │   ├── config/       # Configuration management
+│   │   ├── core/         # Workflow engine core
+│   │   ├── db/           # DB models & migrations
+│   │   ├── middleware/   # Express middleware
+│   │   ├── nodes/        # Node implementations
+│   │   ├── queue/        # Queue workers
+│   │   ├── services/     # Business logic
+│   │   └── utils/        # Utilities
+│   ├── tests/
+│   ├── Dockerfile
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/   # React components
+│   │   └── stores/       # State management
+│   └── package.json
+├── python-executor/      # Python script runner
+└── docker-compose.yml
+```
+
+### Available Scripts
+
+#### Backend
+
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r python-executor/requirements.txt
+npm run dev       # Start dev server
+npm run test      # Run tests
+npm run lint      # Run linter
+npm run migrate   # Database migrations
+npm run build     # Build for production
+npm start         # Start production
 ```
 
-## 🎯 Usage
+#### Frontend
 
-1. Open http://localhost:3000
-2. Drag nodes from the sidebar onto the canvas
-3. Connect nodes by dragging from output to input handles
-4. Click nodes to configure them
-5. Click "Execute" to run the workflow
-
-## 🏗️ Architecture
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   React UI  │────▶│  Node.js API │────▶│    Redis    │
-└─────────────┘     └─────────────┘     └─────────────┘
-                            │                    │
-                            ▼                    ▼
-                    ┌─────────────┐     ┌─────────────┐
-                    │  PostgreSQL  │     │  Bull Queue │
-                    └─────────────┘     └─────────────┘
-                                                │
-                                                ▼
-                                        ┌─────────────┐
-                                        │Python Worker│
-                                        └─────────────┘
+```bash
+npm run dev       # Dev server
+npm run build     # Build production
+npm run preview   # Preview build
 ```
 
-## 📦 Node Types
+---
 
-### HTTP Node
-Make HTTP requests to external APIs
-```javascript
-{
-  url: "https://api.example.com/data",
-  method: "GET",
-  headers: { "Authorization": "Bearer token" }
-}
-```
+## ⚙️ Configuration
 
-### Database Node
-Execute SQL queries
-```javascript
-{
-  connectionString: "postgresql://...",
-  query: "SELECT * FROM users WHERE status = :status"
-}
-```
+### Environment Variables
 
-### Python Node
-Execute Python scripts
-```python
-# Access input via input_value
-result = {"processed": input_value * 2}
-```
-
-### Conditional Node
-Branch workflow based on conditions
-```javascript
-{
-  operator: "equals",
-  value: "active",
-  path: "user.status"
-}
-```
-
-### Transformer Node
-Transform data with JavaScript
-```javascript
-{
-  code: "return { ...input, timestamp: new Date() }"
-}
-```
-
-## 🔧 Configuration
-
-Environment variables in `.env`:
+`.env` for backend:
 
 ```env
 NODE_ENV=development
 PORT=3001
+
+DATABASE_URL=postgresql://user:pass@localhost:5432/workflow_engine
+
 REDIS_HOST=localhost
 REDIS_PORT=6379
-DATABASE_URL=postgresql://user:pass@localhost/workflow_engine
+
 JWT_SECRET=your-secret-key
-MAX_CONCURRENCY=10
+BCRYPT_ROUNDS=10
+
+RATE_LIMIT_MAX_REQUESTS=100
+RATE_LIMIT_WINDOW_MS=900000
 ```
+
+---
+
+## 📦 Node Types
+
+* **HTTP Node** – API requests
+* **Database Node** – SQL queries
+* **Python Node** – Execute sandboxed Python
+* **Conditional Node** – Branch logic
+* **Transformer Node** – Data manipulation
+
+---
+
+## 🔒 Security
+
+* ✅ JWT-based authentication
+* ✅ Per-IP rate limiting
+* ✅ Input sanitization
+* ✅ Configurable CORS
+* ✅ Helmet security headers
+* ✅ Secrets managed via env
+* ✅ Audit & activity logging
+
+---
 
 ## 📈 Performance
 
-- Handles 1000+ concurrent workflows
-- Sub-100ms node execution latency
-- Horizontal scaling via Redis queues
-- Automatic retry with exponential backoff
+* 🚀 1000+ concurrent workflows
+* ⏱ Sub-100ms execution latency
+* 🧩 Redis-backed horizontal scaling
+* 🔄 Automatic retries + exponential backoff
+* 💾 Streaming for large datasets
+
+---
 
 ## 🧪 Testing
 
 ```bash
-# Backend tests
-cd backend
 npm test
-
-# Frontend tests
-cd frontend
-npm test
-
-# End-to-end tests
-npm run test:e2e
-
-# Server 
-redis-server
-pg_ctl -D /usr/local/var/postgres start
-
+npm run test:coverage
+npm test -- --testPathPattern=workflow
+npm run test:watch
 ```
-## 🚀 Deployment
 
-### Production with Docker
+---
+
+## 📊 Monitoring & Observability
+
+* Endpoints: `/health`, `/ready`, `/metrics`
+* Logging: Pino (pretty dev, JSON prod)
+* Metrics: Workflow timings, node stats, queue depth, API latency
+
+---
+
+## 🚢 Deployment
+
+### Docker
 
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+docker build -t workflow-engine .
+docker run -d -p 3001:3001 \
+  -e DATABASE_URL=postgresql://... \
+  -e REDIS_HOST=redis \
+  workflow-engine
 ```
 
 ### Kubernetes
 
-```bash
-kubectl apply -f k8s/
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workflow-engine
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: workflow-engine
+  template:
+    metadata:
+      labels:
+        app: workflow-engine
+    spec:
+      containers:
+      - name: workflow-engine
+        image: workflow-engine:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          value: "production"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
 ```
-
-## 📝 API Documentation
-
-### Create Workflow
-```http
-POST /api/workflows
-Content-Type: application/json
-
-{
-  "name": "My Workflow",
-  "nodes": [...],
-  "edges": [...]
-}
-```
-
-### Execute Workflow
-```http
-POST /api/workflows/:id/execute
-Content-Type: application/json
-
-{
-  "input": { "key": "value" }
-}
-```
-
-### Get Execution Status
-```http
-GET /api/executions/:id
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing`)
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - see LICENSE file
-
-## 🙏 Acknowledgments
-
-- React Flow for the visual editor
-- Bull for robust queue management
-- Redis for distributed caching
-- PostgreSQL for reliable data storage
-
-## 💬 Support
-
-- GitHub Issues: [Report bugs](https://github.com/YOUR_USERNAME/workflow-engine/issues)
-- Discussions: [Ask questions](https://github.com/YOUR_USERNAME/workflow-engine/discussions)
 
 ---
 
-Built for production-grade automation & Learning
+## 🤝 Contributing
+
+1. Fork
+2. Branch: `feature/awesome`
+3. Commit: `feat: add awesome`
+4. Push & PR
+
+**Guidelines:**
+
+* Add tests
+* Follow ESLint
+* Update docs
+* Use JSDoc
+* Conventional commits
+
+---
+
+## 📄 API Overview
+
+### Auth
+
+```http
+POST /api/auth/login
+```
+
+### Workflows
+
+```http
+POST /api/workflows
+POST /api/workflows/:id/execute
+GET /api/executions/:id
+```
+
+### WebSockets
+
+```javascript
+ws://localhost:3001
+
+{ "type": "subscribe", "channel": "execution:123" }
+{ "type": "node:completed", "nodeId": "abc", "result": {...} }
+```
+
+---
+
+## 🐛 Troubleshooting
+
+* **Port in use** → `lsof -i :3001 && kill -9 <PID>`
+* **Redis fail** → `redis-server`
+* **Migrations fail** → `npm run migrate:rollback && npm run migrate`
+
+Debug:
+
+```bash
+DEBUG=* npm run dev
+DEBUG=knex:query npm run dev
+```
+
+---
+
+## 📚 Resources
+
+* Documentation
+* API Reference
+* Examples
+* Changelog
+
+---
+
+## 📝 License
+
+MIT – see [LICENSE](./LICENSE)
+
+---
+
+## 🙏 Acknowledgments
+
+* React Flow
+* BullMQ
+* Redis
+* PostgreSQL
+* OSS Community
+
+---
+
+## 💬 Support
+
+* GitHub Issues
+* Discussions
+* Discord Community
+
+---
+
+🔥 **Production-grade automation, built to scale.**
+

@@ -1,9 +1,57 @@
+# Dependencies
 node_modules/
-*.env
-.DS_Store
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Production
 dist/
 build/
-*.log
-venv/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+venv/
+.Python
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Misc
+.cache/
+.temp/
+tmp/
